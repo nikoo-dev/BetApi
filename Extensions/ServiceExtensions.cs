@@ -1,5 +1,9 @@
 using System.Text;
 using BetliveApi.Data;
+using BetliveApi.Repositories;
+using BetliveApi.Repositories.Interfaces;
+using BetliveApi.Services;
+using BetliveApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,15 +23,19 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        // Repositories will be registered here in Step 3
-        // e.g. services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserRepository,        UserRepository>();
+        services.AddScoped<IGameRepository,        GameRepository>();
+        services.AddScoped<IBetRepository,         BetRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
         return services;
     }
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // Services will be registered here in Step 3
-        // e.g. services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IGameService, GameService>();
+        services.AddScoped<IBetService,  BetService>();
+        services.AddScoped<IUserService, UserService>();
         return services;
     }
 
@@ -35,7 +43,7 @@ public static class ServiceExtensions
         this IServiceCollection services, IConfiguration config)
     {
         var jwtSettings = config.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"]!;
+        var secretKey   = jwtSettings["SecretKey"]!;
 
         services.AddAuthentication(options =>
         {
@@ -59,7 +67,7 @@ public static class ServiceExtensions
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("AdminOnly",     policy => policy.RequireRole("Admin"));
             options.AddPolicy("PlayerOrAdmin", policy => policy.RequireRole("Player", "Admin"));
         });
 
@@ -77,7 +85,6 @@ public static class ServiceExtensions
                 Description = "REST API for the Betlive online gaming platform"
             });
 
-            // Allow JWT tokens in Swagger UI
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = "Enter: Bearer {your JWT token}",
