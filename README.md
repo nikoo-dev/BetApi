@@ -69,7 +69,7 @@ cd BetApi
 docker-compose up
 ```
 
-API runs at `http://localhost:8080` · Swagger at `http://localhost:8080/swagger`
+API runs at `http://localhost:8080` · Swagger at `http://localhost:8080`
 
 ### Option 2: Local development
 
@@ -102,30 +102,36 @@ Password: Admin123!
 dotnet test
 ```
 
-13 unit tests covering `BetService` and `AuthService` business logic using xUnit + Moq.
+15 unit tests covering `BetService` and `AuthService` business logic using xUnit + Moq.
+
+| Test class | Tests |
+|---|---|
+| `BetServiceTests` | PlaceBet (valid, insufficient balance, game not upcoming, user not found, balance deduction, odds locking), SettleGameBets (winner credited, loser marked) |
+| `AuthServiceTests` | Register (success, duplicate email, duplicate username), Login (valid, wrong password, nonexistent email) |
 
 ## Project Structure
 
 ```
 BetApi/
-├── Controllers/          # HTTP endpoints
-├── Services/             # Business logic
-│   └── Interfaces/
-├── Repositories/         # Data access layer
-│   └── Interfaces/
-├── Models/               # EF Core entities
-├── DTOs/                 # Request / response shapes
-│   ├── Auth/
-│   ├── Bet/
-│   ├── Game/
-│   └── User/
-├── Data/                 # DbContext + seeder
-├── Middleware/           # Global error handling
-├── Extensions/           # DI + validation configuration
-├── Dockerfile
-├── docker-compose.yml
-└── .github/workflows/    # CI pipeline
-```
+├── BetliveApi/
+│   ├── Controllers/          # HTTP endpoints
+│   ├── Services/             # Business logic
+│   │   └── Interfaces/
+│   ├── Repositories/         # Data access layer
+│   │   └── Interfaces/
+│   ├── Models/               # EF Core entities
+│   ├── DTOs/                 # Request / response shapes
+│   │   ├── Auth/
+│   │   ├── Bet/
+│   │   ├── Game/
+│   │   └── User/
+│   ├── Data/                 # DbContext + seeder
+│   ├── Middleware/           # Global error handling
+│   ├── Extensions/           # DI + validation configuration
+│   ├── Dockerfile
+│   └── docker-compose.yml
+└── BetliveApi.Tests/
+    └── Services/             # Unit tests
 
 ## Status
 
