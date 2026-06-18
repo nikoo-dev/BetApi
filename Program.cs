@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using BetliveApi.Data;
 using BetliveApi.Extensions;
 using BetliveApi.Middleware;
