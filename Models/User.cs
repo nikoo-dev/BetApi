@@ -10,13 +10,14 @@ public class User
 
     public string PasswordHash { get; set; } = string.Empty;
 
-    public string Role { get; set; } = "Player"; // "Player" or "Admin"
+    public string Role { get; set; } = "Player";
 
     public decimal Balance { get; set; } = 0;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation properties (EF Core uses these to build relationships)
+    // Navigation properties
     public ICollection<Bet> Bets { get; set; } = new List<Bet>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

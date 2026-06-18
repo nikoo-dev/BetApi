@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Bet> Bets => Set<Bet>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,13 +43,11 @@ public class AppDbContext : DbContext
             entity.Property(b => b.OddsAtPlacement).HasPrecision(10, 2);
             entity.Property(b => b.PotentialWin).HasPrecision(18, 2);
 
-            // A Bet belongs to one User; deleting a User deletes their Bets
             entity.HasOne(b => b.User)
                   .WithMany(u => u.Bets)
                   .HasForeignKey(b => b.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            // A Bet belongs to one Game; deleting a Game restricts deletion if bets exist
             entity.HasOne(b => b.Game)
                   .WithMany(g => g.Bets)
                   .HasForeignKey(b => b.GameId)
@@ -64,6 +63,18 @@ public class AppDbContext : DbContext
             entity.HasOne(t => t.User)
                   .WithMany(u => u.Transactions)
                   .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- RefreshToken ---
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.HasIndex(r => r.Token).IsUnique();
+
+            entity.HasOne(r => r.User)
+                  .WithMany(u => u.RefreshTokens)
+                  .HasForeignKey(r => r.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }
