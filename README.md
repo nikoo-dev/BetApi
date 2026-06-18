@@ -8,52 +8,102 @@ A RESTful Sports Betting API built with .NET 8, designed as a portfolio project 
 - **Entity Framework Core** — ORM with Code First migrations
 - **PostgreSQL** — relational database
 - **JWT / OAuth 2** — authentication and authorization
-- **Swagger** — API documentation
+- **BCrypt** — password hashing
+- **Swagger** — interactive API documentation
 
 ## Features
 
 - User registration and login with JWT tokens
-- Role-based access (Player / Admin)
-- Browse available sports games with odds
-- Place bets and track results
-- Wallet system with transaction history
+- Role-based access control (Player / Admin)
+- Browse available sports games with live odds
+- Place bets with automatic odds locking
+- Automatic bet settlement when admin sets game result
+- Wallet system with full transaction history
+- Global error handling with clean JSON responses
+- Auto-migration and database seeding on startup
 
-## Project Structure
+## API Endpoints
 
-BetApi/
+### Auth — no token required
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register a new player account |
+| POST | `/api/auth/login` | Login and receive JWT token |
 
-├── Controllers/     # API endpoints
+### Games — reading is public, writing is Admin only
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/games` | Get all games |
+| GET | `/api/games/upcoming` | Get upcoming games (bets open) |
+| GET | `/api/games/{id}` | Get a single game |
+| POST | `/api/games` | Create a game *(Admin)* |
+| PATCH | `/api/games/{id}/result` | Set result and settle bets *(Admin)* |
 
-├── Services/        # Business logic
+### Bets — requires login
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/bets` | Place a bet on an upcoming game |
+| GET | `/api/bets/my` | Get all your bets |
 
-├── Repositories/    # Data access layer
-
-├── Models/          # EF Core entities
-
-├── DTOs/            # Request/response shapes
-
-├── Data/            # DbContext
-
-├── Middleware/      # Global error handling
-
-└── Extensions/      # DI configuration
+### Users — requires login
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/me` | Get your profile |
+| GET | `/api/users/me/balance` | Get your wallet balance |
+| POST | `/api/users/me/deposit` | Deposit funds |
+| GET | `/api/users/{id}` | Get any user *(Admin)* |
 
 ## Getting Started
 
+### Prerequisites
+- .NET 8 SDK
+- PostgreSQL
+
+### Setup
+
 ```bash
-# Install dependencies
+# 1. Clone the repo
+git clone https://github.com/nikoo-dev/BetApi.git
+cd BetApi
+
+# 2. Update connection string in appsettings.json
+# "DefaultConnection": "Host=localhost;Database=betlive_db;Username=postgres;Password=YOUR_PASSWORD"
+
+# 3. Restore packages
 dotnet restore
 
-# Set your connection string in appsettings.json
-
-# Run migrations
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-# Run the API
+# 4. Run — migrations and seeding happen automatically
 dotnet run
+```
+
+Swagger UI opens at `https://localhost:{port}`
+
+### Default Admin Account (seeded automatically)
+```
+Email:    admin@betlive.ge
+Password: Admin123!
+```
+
+## Project Structure
+
+```
+BetApi/
+├── Controllers/          # HTTP endpoints
+├── Services/             # Business logic
+│   └── Interfaces/
+├── Repositories/         # Data access layer
+│   └── Interfaces/
+├── Models/               # EF Core entities
+├── DTOs/                 # Request / response shapes
+│   ├── Auth/
+│   ├── Bet/
+│   ├── Game/
+│   └── User/
+├── Data/                 # DbContext + seeder
+├── Middleware/           # Global error handling
+└── Extensions/           # DI + validation configuration
 ```
 
 ## Status
 
-🚧 In active development
+✅ Complete — ready for local development
