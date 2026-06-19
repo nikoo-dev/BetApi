@@ -1,0 +1,368 @@
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --surface:   #1a1d27;
+  --surface2:  #22263a;
+  --border:    #2e3347;
+  --primary:   #4f6ef7;
+  --primary-h: #3a57e8;
+  --success:   #22c55e;
+  --danger:    #ef4444;
+  --warning:   #f59e0b;
+  --text:      #e8eaf0;
+  --muted:     #7b82a0;
+  --radius:    10px;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Navbar ── */
+.navbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar .logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+
+.navbar .logo span { color: var(--text); }
+
+.navbar nav { display: flex; gap: 12px; align-items: center; }
+
+.navbar nav a {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.navbar nav a:hover, .navbar nav a.active {
+  color: var(--text);
+  background: var(--surface2);
+  text-decoration: none;
+}
+
+.balance-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.85rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ── Container ── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.container-sm {
+  max-width: 440px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+/* ── Auth Card ── */
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+
+.auth-card h1 {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.auth-card .subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+/* ── Forms ── */
+.form-group { margin-bottom: 18px; }
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--primary);
+}
+
+.form-group select option { background: var(--surface2); }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  width: 100%;
+}
+
+.btn-primary:hover { background: var(--primary-h); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-outline:hover { background: var(--surface2); }
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-success:hover { opacity: 0.9; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Tabs (auth) ── */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ── Alert ── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.alert.show { display: block; }
+.alert-error { background: #3b1111; border: 1px solid #7f1d1d; color: #fca5a5; }
+.alert-success { background: #052e16; border: 1px solid #14532d; color: #86efac; }
+
+/* ── Page Header ── */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+.page-header p { color: var(--muted); font-size: 0.9rem; }
+
+/* ── Games Grid ── */
+.games-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.game-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  transition: border-color 0.2s;
+}
+
+.game-card:hover { border-color: var(--primary); }
+
+.game-card .sport-tag {
+  display: inline-block;
+  background: var(--surface2);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.game-card .teams {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.game-card .teams .vs {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.9rem;
+  margin: 0 8px;
+}
+
+.game-card .kickoff {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 18px;
+}
+
+.odds-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.odd-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+.odd-btn:hover, .odd-btn.selected {
+  border-color: var(--primary);
+  background: rgba(79, 110, 247, 0.12);
+}
+
+.odd-btn .label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.odd-btn .value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.bet-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bet-footer input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 13px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.bet-footer input:focus { border-color: var(--primary); }
+
+.potential-win {
+  font-size: 0.82rem;
+  color: var(--success);
+  margin-top: 8px;
+  min-height: 18px;
+}
+
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.empty .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+/* ── Spinner ── */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 60px auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Logo on auth page ── */
+.auth-logo {
+  text-align: center;
+  margin-bottom: 28px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 2px;
+}
+
+.auth-logo span { color: var(--text); }

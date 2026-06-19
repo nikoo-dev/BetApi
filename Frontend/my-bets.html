@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetApi — My Bets</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .bet-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .bet-row .info .teams { font-weight: 700; margin-bottom: 4px; }
+  .bet-row .info .meta { color: var(--muted); font-size: 0.82rem; }
+  .status-pill {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .status-Pending  { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .status-Won      { background: rgba(34,197,94,0.15);  color: var(--success); }
+  .status-Lost     { background: rgba(239,68,68,0.15);  color: var(--danger); }
+  .status-Refunded { background: rgba(123,130,160,0.15); color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">BET<span>API</span></div>
+  <nav>
+    <a href="games.html">Games</a>
+    <a href="my-bets.html" class="active">My Bets</a>
+    <span class="balance-badge" id="balanceBadge">💰 --</span>
+    <button class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;" onclick="logout()">Logout</button>
+  </nav>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <h1>My Bets</h1>
+    <p>Track the status of every bet you've placed</p>
+  </div>
+
+  <div id="loadingSpinner" class="spinner"></div>
+  <div id="betsList" style="display:none;"></div>
+  <div id="emptyState" class="empty" style="display:none;">
+    <div class="icon">🎲</div>
+    <p>You haven't placed any bets yet.</p>
+    <a href="games.html" style="display:inline-block; margin-top:10px;">Browse upcoming games →</a>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+requireAuth();
+loadBalance();
+loadMyBets();
+
+const outcomeLabels = ["Home Win", "Draw", "Away Win"];
+
+async function loadMyBets() {
+  const spinner = document.getElementById("loadingSpinner");
+  const list    = document.getElementById("betsList");
+  const empty   = document.getElementById("emptyState");
+
+  try {
+    const res  = await apiFetch("/bets/my");
+    const bets = await res.json();
+
+    spinner.style.display = "none";
+
+    if (!bets.length) {
+      empty.style.display = "block";
+      return;
+    }
+
+    list.style.display = "block";
+    list.innerHTML = bets.map(renderBetRow).join("");
+  } catch {
+    spinner.style.display = "none";
+    showAlert("alertBox", "Failed to load your bets.");
+  }
+}
+
+function renderBetRow(bet) {
+  return `
+    <div class="bet-row">
+      <div class="info">
+        <div class="teams">${bet.homeTeam} vs ${bet.awayTeam}</div>
+        <div class="meta">
+          Bet: ${bet.amount.toFixed(2)} GEL on ${outcomeLabels[bet.chosenOutcome]} @ ${bet.oddsAtPlacement.toFixed(2)}
+          · Potential win: ${bet.potentialWin.toFixed(2)} GEL
+          · Placed ${formatDate(bet.placedAt)}
+        </div>
+      </div>
+      <span class="status-pill status-${bet.status}">${bet.status}</span>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

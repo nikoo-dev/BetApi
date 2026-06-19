@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetApi — Games</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">BET<span>API</span></div>
+  <nav>
+    <a href="games.html" class="active">Games</a>
+    <a href="my-bets.html">My Bets</a>
+    <span class="balance-badge" id="balanceBadge">💰 --</span>
+    <button class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;" onclick="logout()">Logout</button>
+  </nav>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Upcoming Games</h1>
+    <p>Pick an outcome and place your bet</p>
+  </div>
+
+  <div id="alertBox" class="alert alert-error"></div>
+  <div id="successBox" class="alert alert-success"></div>
+
+  <div id="loadingSpinner" class="spinner"></div>
+  <div id="gamesGrid" class="games-grid" style="display:none;"></div>
+  <div id="emptyState" class="empty" style="display:none;">
+    <div class="icon">🏟️</div>
+    <p>No upcoming games right now. Check back soon!</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+requireAuth();
+loadBalance();
+loadGames();
+
+let selectedBets = {}; // gameId -> { outcome, odds }
+
+async function loadGames() {
+  const spinner = document.getElementById("loadingSpinner");
+  const grid    = document.getElementById("gamesGrid");
+  const empty   = document.getElementById("emptyState");
+
+  try {
+    const res   = await apiFetch("/games/upcoming");
+    const games = await res.json();
+
+    spinner.style.display = "none";
+
+    if (!games.length) {
+      empty.style.display = "block";
+      return;
+    }
+
+    grid.style.display = "grid";
+    grid.innerHTML = games.map(renderGameCard).join("");
+  } catch {
+    spinner.style.display = "none";
+    showAlert("alertBox", "Failed to load games. Is the API running?");
+  }
+}
+
+function renderGameCard(game) {
+  return `
+    <div class="game-card" data-game-id="${game.id}">
+      <span class="sport-tag">${game.sport}</span>
+      <div class="teams">${game.homeTeam} <span class="vs">vs</span> ${game.awayTeam}</div>
+      <div class="kickoff">⏰ ${formatDate(game.startsAt)}</div>
+
+      <div class="odds-row">
+        <div class="odd-btn" onclick="selectOdd('${game.id}', 0, ${game.oddsHome}, this)">
+          <div class="label">Home</div>
+          <div class="value">${game.oddsHome.toFixed(2)}</div>
+        </div>
+        <div class="odd-btn" onclick="selectOdd('${game.id}', 1, ${game.oddsDraw}, this)">
+          <div class="label">Draw</div>
+          <div class="value">${game.oddsDraw.toFixed(2)}</div>
+        </div>
+        <div class="odd-btn" onclick="selectOdd('${game.id}', 2, ${game.oddsAway}, this)">
+          <div class="label">Away</div>
+          <div class="value">${game.oddsAway.toFixed(2)}</div>
+        </div>
+      </div>
+
+      <div class="bet-footer">
+        <input type="number" min="0.01" step="0.01" placeholder="Amount (GEL)"
+               id="amount-${game.id}" oninput="updatePotentialWin('${game.id}')">
+        <button class="btn btn-success" onclick="placeBet('${game.id}')">Place Bet</button>
+      </div>
+      <div class="potential-win" id="potential-${game.id}"></div>
+    </div>
+  `;
+}
+
+function selectOdd(gameId, outcome, odds, el) {
+  // outcome: 0 = HomeWin, 1 = Draw, 2 = AwayWin (matches GameOutcome enum)
+  selectedBets[gameId] = { outcome, odds };
+
+  // Highlight only the selected button within this card
+  const card = el.closest(".game-card");
+  card.querySelectorAll(".odd-btn").forEach(b => b.classList.remove("selected"));
+  el.classList.add("selected");
+
+  updatePotentialWin(gameId);
+}
+
+function updatePotentialWin(gameId) {
+  const sel = selectedBets[gameId];
+  const amountInput = document.getElementById(`amount-${gameId}`);
+  const potentialEl  = document.getElementById(`potential-${gameId}`);
+
+  if (!sel || !amountInput.value) {
+    potentialEl.textContent = "";
+    return;
+  }
+
+  const amount = parseFloat(amountInput.value);
+  if (isNaN(amount) || amount <= 0) {
+    potentialEl.textContent = "";
+    return;
+  }
+
+  const win = (amount * sel.odds).toFixed(2);
+  potentialEl.textContent = `Potential win: ${win} GEL`;
+}
+
+async function placeBet(gameId) {
+  const sel = selectedBets[gameId];
+  const amountInput = document.getElementById(`amount-${gameId}`);
+  const amount = parseFloat(amountInput.value);
+
+  if (!sel) {
+    showAlert("alertBox", "Please select an outcome (Home / Draw / Away) first.");
+    return;
+  }
+  if (!amount || amount <= 0) {
+    showAlert("alertBox", "Please enter a valid bet amount.");
+    return;
+  }
+
+  try {
+    const res = await apiFetch("/bets", {
+      method: "POST",
+      body: JSON.stringify({
+        gameId: gameId,
+        chosenOutcome: sel.outcome,
+        amount: amount
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert("alertBox", data.message || "Could not place bet.");
+      return;
+    }
+
+    showAlert("successBox", `Bet placed! Potential win: ${data.potentialWin.toFixed(2)} GEL`, "success");
+    amountInput.value = "";
+    document.getElementById(`potential-${gameId}`).textContent = "";
+    loadBalance();
+  } catch {
+    showAlert("alertBox", "Something went wrong placing your bet.");
+  }
+}
+</script>
+</body>
+</html>
