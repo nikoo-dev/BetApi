@@ -2,10 +2,11 @@
 
 ![Build & Test](https://github.com/nikoo-dev/BetApi/actions/workflows/build.yml/badge.svg)
 
-A RESTful Sports Betting API built with .NET 8, designed as a portfolio project targeting backend developer roles in the online gaming industry.
+A RESTful Sports Betting API built with .NET 8, designed as a portfolio project targeting backend developer roles in the online gaming industry. Includes a lightweight HTML/CSS/JS frontend client.
 
 ## Tech Stack
 
+**Backend**
 - **ASP.NET Core 8** — Web API framework
 - **Entity Framework Core** — ORM with Code First migrations
 - **PostgreSQL** — relational database
@@ -14,6 +15,11 @@ A RESTful Sports Betting API built with .NET 8, designed as a portfolio project 
 - **xUnit + Moq** — unit testing
 - **Docker** — containerized deployment
 - **Swagger** — interactive API documentation
+
+**Frontend**
+- **HTML / CSS / JavaScript** — no framework, vanilla client
+- Token-based auth with automatic refresh
+- Live odds selection and bet placement
 
 ## Features
 
@@ -25,6 +31,7 @@ A RESTful Sports Betting API built with .NET 8, designed as a portfolio project 
 - Wallet system with full transaction history
 - Global error handling with clean JSON responses
 - Auto-migration and database seeding on startup
+- Working frontend client to register, log in, browse games, place bets, and track bet history
 
 ## API Endpoints
 
@@ -65,7 +72,7 @@ A RESTful Sports Betting API built with .NET 8, designed as a portfolio project 
 
 ```bash
 git clone https://github.com/nikoo-dev/BetApi.git
-cd BetApi
+cd BetApi/BetliveApi
 docker-compose up
 ```
 
@@ -78,7 +85,7 @@ API runs at `http://localhost:8080` · Swagger at `http://localhost:8080`
 ```bash
 # 1. Clone the repo
 git clone https://github.com/nikoo-dev/BetApi.git
-cd BetApi
+cd BetApi/BetliveApi
 
 # 2. Update connection string in appsettings.json
 # "DefaultConnection": "Host=localhost;Database=betlive_db;Username=postgres;Password=YOUR_PASSWORD"
@@ -86,15 +93,25 @@ cd BetApi
 # 3. Restore packages
 dotnet restore
 
-# 4. Run — migrations and seeding happen automatically
+# 4. Apply migrations
+dotnet ef database update
+
+# 5. Run — seeding happens automatically on first run
 dotnet run
 ```
 
-### Default Admin Account (seeded automatically)
+### Default Admin Account (seeded automatically on first run)
 ```
 Email:    admin@betlive.ge
 Password: Admin123!
 ```
+
+### Running the Frontend
+
+1. Make sure the API is running (see above) and note the port it's listening on
+2. Open `Frontend/app.js` and confirm `API_BASE` matches your API's URL and port
+3. Open `Frontend/index.html` with a local server (e.g. VS Code's **Live Server** extension)
+4. Register a new account or log in, then browse games and place bets
 
 ## Running Tests
 
@@ -126,13 +143,16 @@ BetApi/
 │   │   ├── Game/
 │   │   └── User/
 │   ├── Data/                 # DbContext + seeder
-│   ├── Middleware/           # Global error handling
-│   ├── Extensions/           # DI + validation configuration
+│   ├── Middleware/            # Global error handling
+│   ├── Extensions/            # DI + validation + CORS configuration
+│   ├── Migrations/           # EF Core migrations
+│   ├── Frontend/             # HTML/CSS/JS client
 │   ├── Dockerfile
 │   └── docker-compose.yml
 └── BetliveApi.Tests/
     └── Services/             # Unit tests
+```
 
 ## Status
 
-✅ Complete — production-ready structure
+✅ Complete — full-stack demo with working backend, frontend, tests, and CI/CD
