@@ -112,4 +112,16 @@ public static class ServiceExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader());
+        });
+        return services;
+    }
 }

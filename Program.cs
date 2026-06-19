@@ -11,6 +11,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddValidationErrorHandling();
+builder.Services.AddCorsPolicy();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -21,8 +22,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.Database.MigrateAsync();   // applies any pending migrations
-    await DataSeeder.SeedAsync(context);     // seeds if empty
+    await context.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(context);
 }
 
 if (app.Environment.IsDevelopment())
@@ -37,6 +38,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend"); // must come before Authentication/Authorization
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
